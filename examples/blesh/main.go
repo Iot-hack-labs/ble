@@ -18,12 +18,13 @@ import (
 )
 
 var curr struct {
-	device  ble.Device
-	client  ble.Client
-	clients map[string]ble.Client
-	uuid    ble.UUID
-	addr    ble.Addr
-	profile *ble.Profile
+	device   ble.Device
+	client   ble.Client
+	clients  map[string]ble.Client
+	uuid     ble.UUID
+	addr     ble.Addr
+	profile  *ble.Profile
+	writeVal string
 }
 
 var (
@@ -31,6 +32,7 @@ var (
 	errNoProfile    = fmt.Errorf("no profile")
 	errNoUUID       = fmt.Errorf("no UUID")
 	errInvalidUUID  = fmt.Errorf("invalid UUID")
+	errNoWriteVal   = fmt.Errorf("no write val supplied")
 )
 
 func main() {
@@ -121,7 +123,7 @@ func main() {
 			Usage:   "Write value to a characteristic or descriptor",
 			Before:  setup,
 			Action:  cmdWrite,
-			Flags:   []cli.Flag{flgUUID, flgTimeout, flgName, flgAddr},
+			Flags:   []cli.Flag{flgUUID, flgTimeout, flgName, flgAddr, flgWriteVal},
 		},
 		{
 			Name:   "sub",
@@ -346,6 +348,9 @@ func cmdWrite(c *cli.Context) error {
 	if err := doGetUUID(c); err != nil {
 		return err
 	}
+	if err := doGetWriteVal(c); err != nil {
+		return err
+	}
 	if err := doConnect(c); err != nil {
 		return err
 	}
@@ -353,7 +358,15 @@ func cmdWrite(c *cli.Context) error {
 		return err
 	}
 	if u := curr.profile.Find(ble.NewCharacteristic(curr.uuid)); u != nil {
-		err := curr.client.WriteCharacteristic(u.(*ble.Characteristic), []byte("hello"), true)
+
+		val := []byte("1")
+		if len(curr.writeVal) > 0 {
+			fmt.Println("Write Val", curr.writeVal)
+			val = []byte(curr.writeVal)
+		}
+
+		fmt.Println(u.(*ble.Characteristic).ValueHandle)
+		err := curr.client.WriteCharacteristic(u.(*ble.Characteristic), val, true)
 		return errors.Wrap(err, "can't write characteristic")
 	}
 	if u := curr.profile.Find(ble.NewDescriptor(curr.uuid)); u != nil {

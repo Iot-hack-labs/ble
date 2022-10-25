@@ -14,4 +14,5 @@ var (
 	flgAllowDup = cli.BoolFlag{Name: "dup", Usage: "Allow duplicate in scanning result"}
 	flgUUID     = cli.StringFlag{Name: "uuid, u", Usage: "UUID"}
 	flgInd      = cli.BoolFlag{Name: "ind", Usage: "Indication"}
+	flgWriteVal = cli.StringFlag{Name: "wval, w", Usage: "Write Value"}
 )

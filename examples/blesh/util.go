@@ -23,6 +23,15 @@ func doGetUUID(c *cli.Context) error {
 	return nil
 }
 
+func doGetWriteVal(c *cli.Context) error {
+	if c.String("wval") != "" {
+		curr.writeVal = c.String("wval")
+		return nil
+	}
+	return errNoWriteVal
+}
+
+
 func doConnect(c *cli.Context) error {
 	if c.String("addr") != "" {
 		curr.addr = ble.NewAddr(c.String("addr"))
